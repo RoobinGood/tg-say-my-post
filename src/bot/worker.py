@@ -8,6 +8,7 @@ from telegram.error import BadRequest
 from telegram.ext import ContextTypes
 
 from src.bot.prefix import build_prefix
+from src.bot.text_preprocess import preprocess_text
 from src.bot.validators import MAX_LEN, extract_incoming
 from src.synthesis.interface import SynthesisProvider
 from src.utils.logging import format_metrics, get_logger, log_failure
@@ -32,6 +33,11 @@ class Worker:
             await message.reply_text(error)
             return
         assert incoming is not None
+        incoming_text = preprocess_text(incoming.text)
+        if not incoming_text.strip():
+            await message.reply_text("озвучивать нечего")
+            return
+        incoming.text = incoming_text
 
         job_id = f"{incoming.chat_id}-{incoming.message_id}"
         self.queue.enqueue(incoming.chat_id, job_id, incoming)
