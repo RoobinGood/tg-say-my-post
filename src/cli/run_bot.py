@@ -1,10 +1,11 @@
+import os
 import sys
 
 from telegram.ext import Application
 
 from src.bot.handlers import setup_handlers
 from src.bot.worker import Worker
-from src.synthesis.stub import StubSynthesis
+from src.synthesis import create_synth
 from src.utils.config import load_config
 from src.utils.logging import get_logger, setup_logging
 from src.utils.queue import InMemoryQueue
@@ -23,7 +24,8 @@ def main() -> int:
         return 1
 
     queue = InMemoryQueue()
-    synth = StubSynthesis(config.audio_stub_path)
+    provider = os.getenv("SYNTH_PROVIDER", "silero")
+    synth = create_synth(config, provider=provider)
     worker = Worker(queue=queue, synth=synth)
 
     app = Application.builder().token(config.bot_token).build()

@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from src.bot.worker import Worker
+from src.synthesis.interface import SynthesisResult
 from src.utils.queue import InMemoryQueue
 
 
@@ -12,10 +13,16 @@ class FakeSynth:
         self.stub = stub
         self.prefixes = []
 
-    def synth(self, text: str, prefix: str | None, out_path: Path) -> Path:
+    def synth(self, text: str, prefix: str | None, out_path: Path) -> SynthesisResult:
         self.prefixes.append(prefix)
         out_path.write_bytes(self.stub.read_bytes())
-        return out_path
+        return SynthesisResult(
+            path=out_path,
+            duration_seconds=0.5,
+            synth_ms=1.0,
+            model_load_ms=None,
+            audio_format="ogg",
+        )
 
 
 class DummyBot:

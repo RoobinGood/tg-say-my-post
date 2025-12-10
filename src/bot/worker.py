@@ -10,7 +10,7 @@ from telegram.ext import ContextTypes
 from src.bot.prefix import build_prefix
 from src.bot.validators import extract_incoming
 from src.synthesis.interface import SynthesisProvider
-from src.utils.logging import get_logger
+from src.utils.logging import format_metrics, get_logger
 from src.utils.queue import InMemoryQueue, JobStatus
 
 
@@ -56,7 +56,20 @@ class Worker:
                 try:
                     with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as tmp:
                         out_path = Path(tmp.name)
-                    self.synth.synth(incoming.text, prefix, out_path)
+                    result = self.synth.synth(incoming.text, prefix, out_path)
+                    out_path = result.path
+                    metrics_line = format_metrics(
+                        "bot_silero",
+                        load_ms=result.model_load_ms,
+                        synth_ms=result.synth_ms,
+                        duration_seconds=result.duration_seconds,
+                    )
+                    self.log.info(
+                        "synth ok chat=%s mid=%s %s",
+                        incoming.chat_id,
+                        incoming.message_id,
+                        metrics_line,
+                    )
                     try:
                         if bot:
                             await bot.send_voice(
@@ -89,13 +102,19 @@ class Worker:
                     cfg = getattr(context, "bot_data", {}).get("config") if hasattr(context, "bot_data") else None
                     debug = bool(getattr(cfg, "debug", False))
                     trace = traceback.format_exc()
+                    if isinstance(exc, FileNotFoundError):
+                        base_text = "синтез недоступен: отсутствует модель или путь"
+                    elif isinstance(exc, OSError):
+                        base_text = "синтез недоступен: ошибка записи/чтения"
+                    else:
+                        base_text = "не удалось озвучить сообщение"
                     if bot:
-                        text = "не удалось озвучить сообщение"
+                        text = base_text
                         if debug:
                             text = f"{text}\n\n{trace}"
                         await bot.send_message(chat_id=incoming.chat_id, text=text)
                     else:
-                        text = "не удалось озвучить сообщение"
+                        text = base_text
                         if debug:
                             text = f"{text}\n\n{trace}"
                         await message.reply_text(text)
