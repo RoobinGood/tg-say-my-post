@@ -7,6 +7,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-10
 - Local filesystem for generated audio; no persistent DB. (002-silero-tts)
 - Python 3.11 + uv (runtime/packaging), Telegram bot library (aiogram/pyrogram already in repo), existing Silero TTS client; добавить MeloTTS клиент. (003-melotts-tts)
 - N/A (конфиг из окружения, файлы модели/кэши локально при необходимости). (003-melotts-tts)
+- Python 3.11 (uv-managed) + aiogram/pyrogram stack for bot, existing Silero TTS client, планируемый Piper TTS клиент + CLI обёртка, logging/metrics (стандартный logging + структурированные записи), pytest для тестов (004-piper-tts)
+- Локальные файлы весов (кеш), конфиг из env; БД не затрагивается (004-piper-tts)
 
 - Python 3.11 (uv-managed) + python-telegram-bot, pydub (для mp3 handling), pytest (001-telegram-tts-bot)
 
@@ -26,10 +28,10 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11 (uv-managed): Follow standard conventions
 
 ## Recent Changes
+- 004-piper-tts: Added Python 3.11 (uv-managed) + aiogram/pyrogram stack for bot, existing Silero TTS client, планируемый Piper TTS клиент + CLI обёртка, logging/metrics (стандартный logging + структурированные записи), pytest для тестов
 - 003-melotts-tts: Added Python 3.11 + uv (runtime/packaging), Telegram bot library (aiogram/pyrogram already in repo), existing Silero TTS client; добавить MeloTTS клиент.
 - 002-silero-tts: Added Python 3.11 (per project `requires-python >=3.11`). + torch + silero-models (via torch hub or predownloaded files), python-telegram-bot, pydub, pytest/pytest-asyncio.
 
-- 001-telegram-tts-bot: Added Python 3.11 (uv-managed) + python-telegram-bot, pydub (для mp3 handling), pytest
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

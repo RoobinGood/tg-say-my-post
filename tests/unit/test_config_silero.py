@@ -7,35 +7,49 @@ from src.utils import config as config_module
 
 def _clear_env(monkeypatch):
     for key in [
-        "SILERO_VOICE",
-        "SILERO_LANGUAGE",
-        "SILERO_FORMAT",
-        "SILERO_OUTPUT_DIR",
-        "SILERO_SAMPLE_RATE",
-        "SILERO_DEVICE",
-        "SILERO_MAX_LENGTH",
-        "SILERO_MODEL_PATH",
-        "SILERO_CACHE_DIR",
-        "SILERO_METRICS_FILE",
+        "TTS_ENGINE",
+        "TTS_MODEL",
+        "TTS_TEXT_LIMIT",
+        "TTS_CACHE_DIR",
+        "TTS_MODEL_URL",
+        "TTS_MODEL_CONFIG_URL",
+        "TTS_MODEL_CHECKSUM",
+        "TTS_MODEL_SIZE",
+        "TTS_SPEAKER_ID",
+        "TTS_SPEAKER",
+        "TTS_LANGUAGE",
+        "TTS_SAMPLE_RATE",
+        "TTS_DEVICE",
+        "TTS_AUDIO_FORMAT",
+        "TTS_MODEL_PATH",
+        "TTS_OUTPUT_DIR",
+        "TTS_METRICS_FILE",
     ]:
         monkeypatch.delenv(key, raising=False)
 
 
 def test_load_config_from_file(tmp_path, monkeypatch):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    monkeypatch.setenv("TTS_AUDIO_FORMAT", "mp3")
+    monkeypatch.setenv("TTS_SPEAKER", "test_speaker")
+    monkeypatch.setenv("TTS_LANGUAGE", "en")
+    monkeypatch.setenv("TTS_SAMPLE_RATE", "22050")
+    monkeypatch.setenv("TTS_OUTPUT_DIR", str(tmp_path / "out"))
+    monkeypatch.setenv("TTS_TEXT_LIMIT", "1200")
     env_file = tmp_path / ".env"
     out_dir = tmp_path / "out"
     env_file.write_text(
         "\n".join(
             [
-                "SILERO_MODEL_ID=v5_ru",
-                "SILERO_SPEAKER=test_speaker",
-                "SILERO_LANGUAGE=en",
-                "SILERO_FORMAT=mp3",
-                f"SILERO_OUTPUT_DIR={out_dir}",
-                "SILERO_SAMPLE_RATE=22050",
-                "SILERO_DEVICE=cpu",
-                "SILERO_MAX_LENGTH=1200",
+                "TTS_MODEL=v5_ru",
+                "TTS_SPEAKER=test_speaker",
+                "TTS_LANGUAGE=en",
+                "TTS_AUDIO_FORMAT=mp3",
+                f"TTS_OUTPUT_DIR={out_dir}",
+                "TTS_SAMPLE_RATE=22050",
+                "TTS_DEVICE=cpu",
+                "TTS_TEXT_LIMIT=1200",
             ]
         ),
         encoding="utf-8",
@@ -55,7 +69,7 @@ def test_load_config_from_file(tmp_path, monkeypatch):
 def test_load_config_invalid_format(tmp_path, monkeypatch):
     _clear_env(monkeypatch)
     env_file = tmp_path / ".env"
-    env_file.write_text("SILERO_FORMAT=flac", encoding="utf-8")
+    env_file.write_text("TTS_AUDIO_FORMAT=flac", encoding="utf-8")
     with pytest.raises(ValueError):
         config_module.load_config(env_file)
 
@@ -63,7 +77,8 @@ def test_load_config_invalid_format(tmp_path, monkeypatch):
 def test_load_config_with_metrics_file(tmp_path, monkeypatch):
     _clear_env(monkeypatch)
     metrics_file = tmp_path / "metrics" / "silero.log"
-    monkeypatch.setenv("SILERO_METRICS_FILE", str(metrics_file))
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    monkeypatch.setenv("TTS_METRICS_FILE", str(metrics_file))
     cfg = config_module.load_config()
     assert cfg.silero.metrics_path == metrics_file.resolve()
     assert metrics_file.parent.exists()

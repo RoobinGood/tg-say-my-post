@@ -24,8 +24,10 @@ def main() -> int:
         return 1
 
     queue = InMemoryQueue()
-    provider = os.getenv("SYNTH_PROVIDER", "silero")
+    provider = os.getenv("SYNTH_PROVIDER") or os.getenv("TTS_ENGINE")
     synth = create_synth(config, provider=provider)
+    active_engine = provider or config.tts.engine.value
+    log.info("synthesis engine=%s model=%s", active_engine, config.tts.model)
     worker = Worker(queue=queue, synth=synth)
 
     app = Application.builder().token(config.bot_token).build()

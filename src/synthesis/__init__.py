@@ -1,17 +1,30 @@
+from typing import TYPE_CHECKING
+
 from src.synthesis.interface import SynthesisProvider, SynthesisResult
-from src.synthesis.silero import SileroSynthesis
-from src.synthesis.stub import StubSynthesis
-from src.utils.config import Config
+from src.synthesis.types import TTSEngine
+
+if TYPE_CHECKING:
+    from src.utils.config import Config
 
 
-def create_synth(config: Config, provider: str = "silero") -> SynthesisProvider:
-    if provider == "silero":
+def create_synth(config: "Config", provider: str | None = None) -> SynthesisProvider:
+    engine = provider or config.tts.engine.value
+    if engine == TTSEngine.SILERO.value:
+        from src.synthesis.silero import SileroSynthesis
+
         return SileroSynthesis(config.silero)
-    if provider == "stub":
+    if engine == TTSEngine.PIPER.value:
+        from src.synthesis.piper import PiperSynthesis
+
+        return PiperSynthesis(config.piper, config.tts)
+    if engine == TTSEngine.STUB.value:
+        from src.synthesis.stub import StubSynthesis
+
         return StubSynthesis(config.audio_stub_path)
-    raise ValueError(f"Unknown synthesis provider: {provider}")
+    raise ValueError(f"Unknown synthesis provider: {engine}")
 
 
-__all__ = ["SynthesisProvider", "SynthesisResult", "SileroSynthesis", "StubSynthesis", "create_synth"]
+__all__ = ["SynthesisProvider", "SynthesisResult", "create_synth", "TTSEngine"]
+
 
 

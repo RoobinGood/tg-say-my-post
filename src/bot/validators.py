@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
@@ -5,7 +6,9 @@ from telegram import Message, Update
 
 from src.bot.models import IncomingItem, SourceType
 
-MAX_LEN = 2000
+DEFAULT_MAX_LEN = 2000
+CONFIG_MAX_LEN = int(os.getenv("TTS_TEXT_LIMIT", DEFAULT_MAX_LEN))
+MAX_LEN = CONFIG_MAX_LEN
 
 
 def _has_attachment(message: Message) -> bool:
@@ -40,7 +43,7 @@ def _get_channel_title(message: Message) -> Optional[str]:
     return None
 
 
-def extract_incoming(update: Update) -> Tuple[Optional[IncomingItem], Optional[str]]:
+def extract_incoming(update: Update, *, max_len: int = MAX_LEN) -> Tuple[Optional[IncomingItem], Optional[str]]:
     message: Optional[Message] = getattr(update, "effective_message", None)
     if message is None:
         return None, "озвучивать нечего"
@@ -53,8 +56,8 @@ def extract_incoming(update: Update) -> Tuple[Optional[IncomingItem], Optional[s
         if _has_attachment(message):
             return None, "не могу озвучить этот формат, пришлите текст"
         return None, "озвучивать нечего"
-    if len(text) > MAX_LEN:
-        return None, "текст превышает 2000 символов"
+    if len(text) > max_len:
+        return None, f"текст превышает {max_len} символов"
 
     forward_from = getattr(message, "forward_from", None)
     forward_from_chat = getattr(message, "forward_from_chat", None)

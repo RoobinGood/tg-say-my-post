@@ -8,9 +8,9 @@ from telegram.error import BadRequest
 from telegram.ext import ContextTypes
 
 from src.bot.prefix import build_prefix
-from src.bot.validators import extract_incoming
+from src.bot.validators import MAX_LEN, extract_incoming
 from src.synthesis.interface import SynthesisProvider
-from src.utils.logging import format_metrics, get_logger
+from src.utils.logging import format_metrics, get_logger, log_failure
 from src.utils.queue import InMemoryQueue, JobStatus
 
 
@@ -25,7 +25,9 @@ class Worker:
         message = update.effective_message
         if message is None:
             return
-        incoming, error = extract_incoming(update)
+        cfg = getattr(context, "bot_data", {}).get("config") if hasattr(context, "bot_data") else None
+        text_limit = getattr(getattr(cfg, "tts", None), "text_limit", None)
+        incoming, error = extract_incoming(update, max_len=text_limit or MAX_LEN)
         if error:
             await message.reply_text(error)
             return
@@ -58,8 +60,9 @@ class Worker:
                         out_path = Path(tmp.name)
                     result = self.synth.synth(incoming.text, prefix, out_path)
                     out_path = result.path
+                    label = getattr(self.synth, "metrics_label", self.synth.__class__.__name__.lower())
                     metrics_line = format_metrics(
-                        "bot_silero",
+                        label,
                         load_ms=result.model_load_ms,
                         synth_ms=result.synth_ms,
                         duration_seconds=result.duration_seconds,
@@ -101,6 +104,7 @@ class Worker:
                     self.log.exception("Failed to synth/send: %s", exc)
                     cfg = getattr(context, "bot_data", {}).get("config") if hasattr(context, "bot_data") else None
                     debug = bool(getattr(cfg, "debug", False))
+                    metrics_path = getattr(getattr(cfg, "tts", None), "metrics_path", None) if cfg else None
                     trace = traceback.format_exc()
                     if isinstance(exc, FileNotFoundError):
                         base_text = "синтез недоступен: отсутствует модель или путь"
@@ -108,6 +112,8 @@ class Worker:
                         base_text = "синтез недоступен: ошибка записи/чтения"
                     else:
                         base_text = "не удалось озвучить сообщение"
+                    label = getattr(self.synth, "metrics_label", self.synth.__class__.__name__.lower())
+                    log_failure(self.log, label, error=str(exc), metrics_file=metrics_path)
                     if bot:
                         text = base_text
                         if debug:

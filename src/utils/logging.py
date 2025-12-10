@@ -54,4 +54,20 @@ def log_metrics(
     return message
 
 
+def log_failure(
+    logger: logging.Logger,
+    label: str,
+    *,
+    error: str,
+    metrics_file: Path | None = None,
+) -> str:
+    message = f"metrics {label} error={error}"
+    logger.error(message)
+    if metrics_file is not None:
+        metrics_file.parent.mkdir(parents=True, exist_ok=True)
+        with metrics_file.open("a", encoding="utf-8") as handle:
+            handle.write(message + "\n")
+    return message
+
+
 
