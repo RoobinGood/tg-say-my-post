@@ -8,6 +8,10 @@ from src.bot.models import IncomingItem, SourceType
 MAX_LEN = 2000
 
 
+def _has_attachment(message: Message) -> bool:
+    return bool(getattr(message, "effective_attachment", None))
+
+
 def _get_sender_name(message: Message) -> Optional[str]:
     forward_from = getattr(message, "forward_from", None)
     if forward_from:
@@ -28,8 +32,13 @@ def extract_incoming(update: Update) -> Tuple[Optional[IncomingItem], Optional[s
     if message is None:
         return None, "озвучивать нечего"
 
-    text = (getattr(message, "text", "") or "").strip()
+    raw_text = getattr(message, "text", None)
+    raw_caption = getattr(message, "caption", None)
+    text = (raw_text or raw_caption or "").strip()
+
     if not text:
+        if _has_attachment(message):
+            return None, "не могу озвучить этот формат, пришлите текст"
         return None, "озвучивать нечего"
     if len(text) > MAX_LEN:
         return None, "текст превышает 2000 символов"
