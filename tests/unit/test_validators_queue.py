@@ -10,6 +10,7 @@ def make_message(
     caption: str | None = None,
     forward_from=None,
     forward_from_chat=None,
+    forward_origin=None,
     attachment=None,
 ) -> SimpleNamespace:
     return SimpleNamespace(
@@ -19,6 +20,7 @@ def make_message(
         caption=caption,
         forward_from=forward_from,
         forward_from_chat=forward_from_chat,
+        forward_origin=forward_origin,
         effective_attachment=attachment,
         from_user=SimpleNamespace(full_name="User"),
     )
@@ -67,6 +69,26 @@ def test_extract_incoming_attachment_only():
     inc, err = extract_incoming(make_update(msg))
     assert inc is None
     assert err == "не могу озвучить этот формат, пришлите текст"
+
+
+def test_extract_incoming_forward_origin_user():
+    origin = SimpleNamespace(sender_user=SimpleNamespace(full_name="Bob"), type="user")
+    msg = make_message("hello", forward_origin=origin)
+    inc, err = extract_incoming(make_update(msg))
+    assert err is None
+    assert inc is not None
+    assert inc.source_type.value == "forwarded_user"
+    assert inc.sender_name == "Bob"
+
+
+def test_extract_incoming_forward_origin_channel():
+    origin = SimpleNamespace(chat=SimpleNamespace(title="News"), type="channel")
+    msg = make_message("hello", forward_origin=origin)
+    inc, err = extract_incoming(make_update(msg))
+    assert err is None
+    assert inc is not None
+    assert inc.source_type.value == "forwarded_channel"
+    assert inc.channel_title == "News"
 
 
 def test_queue_ordering():
