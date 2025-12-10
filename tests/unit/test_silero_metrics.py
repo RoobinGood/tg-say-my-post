@@ -46,6 +46,8 @@ def test_silero_synth_records_metrics(monkeypatch, tmp_path):
     metrics_file = tmp_path / "metrics" / "silero.log"
     fake_measure = _fake_measure_ms_factory([10, 30, 50, 90, 110, 150])
     monkeypatch.setattr(silero, "measure_ms", fake_measure)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    monkeypatch.setenv("TTS_AUDIO_FORMAT", "wav")
 
     class DummyModel:
         def to(self, device):

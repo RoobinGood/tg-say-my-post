@@ -9,24 +9,30 @@ from src.synthesis.silero import SileroSynthesis
 
 def _clear_env(monkeypatch):
     for key in [
-        "SILERO_VOICE",
-        "SILERO_MODEL_ID",
-        "SILERO_SPEAKER",
-        "SILERO_LANGUAGE",
-        "SILERO_FORMAT",
-        "SILERO_OUTPUT_DIR",
-        "SILERO_SAMPLE_RATE",
-        "SILERO_DEVICE",
-        "SILERO_MAX_LENGTH",
-        "SILERO_MODEL_PATH",
-        "SILERO_CACHE_DIR",
-        "SILERO_METRICS_FILE",
+        "TTS_MODEL",
+        "TTS_ENGINE",
+        "TTS_TEXT_LIMIT",
+        "TTS_CACHE_DIR",
+        "TTS_MODEL_URL",
+        "TTS_MODEL_CONFIG_URL",
+        "TTS_MODEL_CHECKSUM",
+        "TTS_MODEL_SIZE",
+        "TTS_SPEAKER_ID",
+        "TTS_SPEAKER",
+        "TTS_LANGUAGE",
+        "TTS_SAMPLE_RATE",
+        "TTS_DEVICE",
+        "TTS_AUDIO_FORMAT",
+        "TTS_MODEL_PATH",
+        "TTS_OUTPUT_DIR",
+        "TTS_METRICS_FILE",
     ]:
         monkeypatch.delenv(key, raising=False)
 
 
 def test_cli_text_ok(monkeypatch, tmp_path, capsys):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
     out = tmp_path / "out.wav"
 
     def fake_synth(self, text, prefix, out_path):
@@ -42,6 +48,7 @@ def test_cli_text_ok(monkeypatch, tmp_path, capsys):
 
 def test_cli_text_file_and_length(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
     out = tmp_path / "out.mp3"
     text_file = tmp_path / "text.txt"
     text_file.write_text("hi", encoding="utf-8")
@@ -63,6 +70,7 @@ def test_cli_text_file_and_length(monkeypatch, tmp_path):
 
 def test_silero_synth_saves_and_metrics(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
     dummy_audio = [0.1] * 16000
 
     class DummyModel:
@@ -83,6 +91,7 @@ def test_silero_synth_saves_and_metrics(monkeypatch, tmp_path):
 
 def test_cli_missing_config_file(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
     missing_cfg = tmp_path / "absent.env"
     out = tmp_path / "out.wav"
     rc = silero_tts.main(["--text", "hi", "--out", str(out), "--config", str(missing_cfg)])
@@ -92,6 +101,7 @@ def test_cli_missing_config_file(monkeypatch, tmp_path):
 
 def test_cli_unwritable_output_dir(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
+    monkeypatch.setenv("TTS_MODEL", "v5_ru")
     blocker = tmp_path / "file"
     blocker.write_text("content", encoding="utf-8")
     out = blocker / "nested" / "out.wav"

@@ -18,6 +18,6 @@ coverage/
 .pytest_cache/
 *.sqlite3
 .DS_Store
-
+out/
 
 
