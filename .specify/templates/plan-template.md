@@ -31,7 +31,12 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Python-first with `uv`; structure must stay small and module-level runnable.
+- Speech synthesis uses a swappable interface; each implementation exposes a CLI.
+- Telegram access controlled by whitelist from environment variables.
+- Text logging with timestamps for incoming messages and synthesis steps.
+- Configuration comes from environment; flows run in Docker.
+- Simplicity/YAGNI: avoid speculative abstractions or extra dependencies.
 
 ## Project Structure
 

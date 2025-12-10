@@ -248,4 +248,5 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
+- Include tasks for CLI verification of synthesis implementations and whitelist/logging where applicable
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

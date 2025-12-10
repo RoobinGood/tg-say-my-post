@@ -1,50 +1,40 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- Sync Impact Report: Version unknown → 1.0.0 | Modified principles: none (new) | Added sections: Core Principles, Operational Constraints, Development Workflow, Governance | Removed sections: none | Templates updated: plan-template.md ✅, spec-template.md ✅, tasks-template.md ✅, commands/* ⚠️ (no command templates present) | Follow-up TODOs: none -->
+
+# tg-say-my-post Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Pythonic Modularity
+Build in idiomatic Python with current libraries, managed by `uv`, and keep each module runnable on its own for fast verification and minimal coupling.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Pluggable Speech Synthesis with CLI
+Expose a stable synthesis interface that can swap implementations; every implementation must provide a CLI entry point to run and inspect its behavior independently.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Telegram
+Bot should always answer to user with russian langauge.
+In debug mode in case of error during processing it should send error trace to user.
+Protect the bot by enabling a whitelist of allowed Telegram users; any request from non-whitelisted users is rejected without side effects.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Transparent Logging
+Log incoming messages and key synthesis steps as plain text with clear labels and timestamps to make troubleshooting straightforward.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Simple and YAGNI
+Favor the smallest working solution, avoid speculative abstractions, and add only the dependencies and features required for the current need.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Operational Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Configuration is driven by environment variables (including the Telegram whitelist and synthesis choices). The project runs in Docker, is managed with `uv`, and keeps the structure small and easy to navigate.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Each module must be executable directly (or via its CLI) for quick checks. Implementations of the speech synthesis interface must be verifiable from the command line. Run tests after code changes to ensure stability, keeping the suite lean and focused on behavior that matters.
+
+## Git
+
+Use conventional commits to write commit messages
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the authoritative baseline. Amendments require documenting the change, rationale, and expected impact in a PR before adoption. Use semantic versioning; increase MAJOR for breaking governance changes, MINOR for added or expanded principles/sections, and PATCH for clarifications. Reviews must confirm compliance with principles (Pythonic modularity, pluggable synthesis with CLI, whitelist enforcement, logging, simplicity) and that configuration remains environment-driven and Docker/uv-compatible.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-12-10 | **Last Amended**: 2025-12-10
