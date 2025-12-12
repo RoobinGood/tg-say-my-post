@@ -44,6 +44,15 @@ class PiperConfig:
 
 
 @dataclass(frozen=True)
+class VoskConfig:
+    model_name: str
+    speaker_id: int
+    audio_format: str
+    cache_dir: Path
+    metrics_path: Optional[Path]
+
+
+@dataclass(frozen=True)
 class Config:
     bot_token: str
     whitelist: Set[int]
@@ -53,6 +62,7 @@ class Config:
     tts: TTSConfig
     silero: "SileroConfig"
     piper: PiperConfig
+    vosk: VoskConfig
 
 
 @dataclass(frozen=True)
@@ -134,6 +144,21 @@ def _validate_piper_config(cfg: PiperConfig) -> PiperConfig:
     allowed_formats = {"wav", "mp3"}
     if cfg.audio_format not in allowed_formats:
         raise ValueError(f"Unsupported format: {cfg.audio_format}")
+    if cfg.cache_dir:
+        cfg.cache_dir.mkdir(parents=True, exist_ok=True)
+    if cfg.metrics_path:
+        cfg.metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    return cfg
+
+
+def _validate_vosk_config(cfg: VoskConfig) -> VoskConfig:
+    allowed_formats = {"wav", "mp3"}
+    if cfg.audio_format not in allowed_formats:
+        raise ValueError(f"Unsupported format: {cfg.audio_format}")
+    if not cfg.model_name:
+        raise ValueError("Vosk model_name cannot be empty")
+    if cfg.speaker_id < 0 or cfg.speaker_id > 4:
+        raise ValueError(f"speaker_id must be in range 0-4, got {cfg.speaker_id}")
     if cfg.cache_dir:
         cfg.cache_dir.mkdir(parents=True, exist_ok=True)
     if cfg.metrics_path:
@@ -255,6 +280,22 @@ def load_config(config_path: Path | None = None) -> Config:
         )
     )
 
+    vosk_model_name = tts_model or "vosk-model-tts-ru-0.9-multi"
+    vosk_speaker_id = tts_speaker_id if tts_speaker_id is not None else 0
+    vosk_format = tts_format
+    vosk_cache_dir = tts_cache_dir
+    vosk_metrics_path = tts_metrics_path
+
+    vosk_cfg = _validate_vosk_config(
+        VoskConfig(
+            model_name=vosk_model_name,
+            speaker_id=vosk_speaker_id,
+            audio_format=vosk_format,
+            cache_dir=vosk_cache_dir,
+            metrics_path=vosk_metrics_path,
+        )
+    )
+
     return Config(
         bot_token=bot_token,
         whitelist=whitelist,
@@ -264,6 +305,7 @@ def load_config(config_path: Path | None = None) -> Config:
         tts=tts_cfg,
         silero=silero_cfg,
         piper=piper_cfg,
+        vosk=vosk_cfg,
     )
 
 

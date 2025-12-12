@@ -87,3 +87,4 @@ async def test_bot_fallback_when_synth_fails(tmp_path):
     assert queue.is_empty(msg.chat_id)
 
 
+

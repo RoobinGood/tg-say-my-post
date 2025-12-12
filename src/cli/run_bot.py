@@ -1,5 +1,7 @@
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 from telegram.ext import Application
 
@@ -28,6 +30,24 @@ def main() -> int:
     synth = create_synth(config, provider=provider)
     active_engine = provider or config.tts.engine.value
     log.info("synthesis engine=%s model=%s", active_engine, config.tts.model)
+
+    log.info("warming up synthesis engine...")
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            warmup_path = Path(tmp.name)
+        try:
+            result = synth.synth("тест", None, warmup_path)
+            log.info(
+                "warmup completed load_ms=%.1f synth_ms=%.1f duration=%.2fs",
+                result.model_load_ms or 0.0,
+                result.synth_ms,
+                result.duration_seconds,
+            )
+        finally:
+            warmup_path.unlink(missing_ok=True)  # type: ignore[arg-type]
+    except Exception as exc:  # noqa: BLE001
+        log.warning("warmup failed: %s (bot will continue)", exc)
+
     worker = Worker(queue=queue, synth=synth)
 
     app = Application.builder().token(config.bot_token).build()

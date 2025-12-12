@@ -11,6 +11,4 @@ uv run python -m src.cli.run_bot
 
 ## backlog
 
-[ ] https://github.com/alphacep/vosk-tts https://huggingface.co/alphacep/vosk-tts-ru-multi
-[ ] https://huggingface.co/NeuroDonu/RU-XTTS-DonuModel
 [ ] README
