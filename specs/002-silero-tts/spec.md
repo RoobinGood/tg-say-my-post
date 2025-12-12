@@ -2,7 +2,7 @@
 
 **Feature Branch**: `[002-silero-tts]`  
 **Created**: 2025-12-10  
-**Status**: Draft  
+**Status**: Delivered  
 **Input**: User description: "Реализуй модуль синтеза речи на основе модели https://github.com/snakers4/silero-models . Обложи его метриками, чтобы понимать, сколько времени занимает генерация. Должен быть cli чтобы потыкать генерацию через консоль Настройки модуля вынеси в конфиг"
 
 ## User Scenarios & Testing *(mandatory)*

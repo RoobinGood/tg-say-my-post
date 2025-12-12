@@ -2,7 +2,7 @@
 
 **Feature Branch**: `005-vosk-tts`  
 **Created**: 2025-12-12  
-**Status**: Draft  
+**Status**: Delivered  
 **Input**: User description: "Добавляем новый модуль tts - vosk tts. Выполняем стандартную реализацию: модуль синтеза с интерфейсом, аналогичным уже существующим методам; cli утилита; добавляем в бота - настройки в .env"
 
 ## User Scenarios & Testing *(mandatory)*

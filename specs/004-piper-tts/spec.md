@@ -2,7 +2,7 @@
 
 **Feature Branch**: `004-piper-tts`  
 **Created**: 2025-12-10  
-**Status**: Draft  
+**Status**: Delivered  
 **Input**: User description: "новая фича - поддержка Piper TTS"
 
 ## User Scenarios & Testing *(mandatory)*
