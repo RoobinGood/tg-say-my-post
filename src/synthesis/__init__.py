@@ -17,6 +17,10 @@ def create_synth(config: "Config", provider: str | None = None) -> SynthesisProv
         from src.synthesis.piper import PiperSynthesis
 
         return PiperSynthesis(config.piper, config.tts)
+    if engine == TTSEngine.VOSK.value:
+        from src.synthesis.vosk import VoskSynthesis
+
+        return VoskSynthesis(config.vosk, config.tts)
     if engine == TTSEngine.STUB.value:
         from src.synthesis.stub import StubSynthesis
 
