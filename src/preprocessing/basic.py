@@ -1,6 +1,5 @@
 import re
 
-
 _EMOJI_RE = re.compile(
     "["
     "\U0000200D"  # zero width joiner
@@ -28,19 +27,47 @@ _EMOJI_RE = re.compile(
     "]"
 )
 
+_URL_RE = re.compile(r"https?://[^\s]+")
 
-def _remove_emojis(text: str) -> str:
+
+def remove_emojis(text: str) -> str:
+    """Remove all emoji characters from text."""
     return _EMOJI_RE.sub("", text)
 
 
-def _replace_leading_emoji_with_dash(line: str) -> str:
+def replace_leading_emoji_with_dash(line: str) -> str:
+    """Replace leading emoji with dash."""
     match = _EMOJI_RE.match(line)
     if not match:
         return line
     return f"-{line[match.end():]}"
 
 
-def _ensure_paragraph_periods(lines: list[str]) -> list[str]:
+def remove_urls(text: str) -> str:
+    """Remove URLs and clean up extra whitespace."""
+    text = _URL_RE.sub("", text)
+    lines = text.split("\n")
+    cleaned_lines = []
+    for line in lines:
+        cleaned_line = re.sub(r"[ \t]+", " ", line).strip()
+        cleaned_lines.append(cleaned_line)
+    return "\n".join(cleaned_lines)
+
+
+def capitalize_paragraphs(lines: list[str]) -> list[str]:
+    """Capitalize first letter of each paragraph."""
+    result: list[str] = []
+    for line in lines:
+        if line.strip():
+            line = line.strip()
+            if line:
+                line = line[0].upper() + line[1:] if len(line) > 1 else line.upper()
+        result.append(line)
+    return result
+
+
+def ensure_paragraph_periods(lines: list[str]) -> list[str]:
+    """Add period at the end of each paragraph if missing."""
     result: list[str] = []
     paragraph: list[str] = []
 
@@ -69,20 +96,4 @@ def _ensure_paragraph_periods(lines: list[str]) -> list[str]:
 
     flush_paragraph()
     return result
-
-
-def preprocess_text(text: str) -> str:
-    if not text:
-        return text
-
-    lines = text.split("\n")
-    cleaned_lines: list[str] = []
-    for line in lines:
-        line_with_dash = _replace_leading_emoji_with_dash(line)
-        line_no_emojis = _remove_emojis(line_with_dash)
-        cleaned_lines.append(line_no_emojis)
-
-    punctuated_lines = _ensure_paragraph_periods(cleaned_lines)
-    return "\n".join(punctuated_lines)
-
 

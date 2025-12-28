@@ -26,6 +26,8 @@ def _clear_env(monkeypatch):
         "TTS_METRICS_FILE",
     ]:
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.delenv("LLM_ENABLED", raising=False)
+    monkeypatch.setenv("LLM_ENABLED", "false")
 
 
 def test_load_config_from_file(tmp_path, monkeypatch):
@@ -79,7 +81,9 @@ def test_load_config_with_metrics_file(tmp_path, monkeypatch):
     metrics_file = tmp_path / "metrics" / "silero.log"
     monkeypatch.setenv("TTS_MODEL", "v5_ru")
     monkeypatch.setenv("TTS_METRICS_FILE", str(metrics_file))
-    cfg = config_module.load_config()
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\n", encoding="utf-8")
+    cfg = config_module.load_config(env_file)
     assert cfg.silero.metrics_path == metrics_file.resolve()
     assert metrics_file.parent.exists()
 

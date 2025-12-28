@@ -64,8 +64,10 @@ def test_silero_synth_records_metrics(monkeypatch, tmp_path):
         self._model_load_ms = silero.measure_ms() - start
 
     monkeypatch.setattr(SileroSynthesis, "_ensure_model", fake_ensure)
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\n", encoding="utf-8")
 
-    base_cfg = load_config()
+    base_cfg = load_config(env_file)
     silero_cfg = replace(
         base_cfg.silero,
         output_dir=tmp_path,

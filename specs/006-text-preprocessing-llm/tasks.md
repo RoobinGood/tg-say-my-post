@@ -16,9 +16,9 @@
 
 **Purpose**: Add dependencies, create config files
 
-- [ ] T001 Add dependencies (openai, tiktoken, num2words) to pyproject.toml
-- [ ] T002 [P] Create config/transliteration.json with abbreviations, symbols, units
-- [ ] T003 [P] Create prompts/transliteration.txt with system prompt for LLM
+- [X] T001 Add dependencies (openai, tiktoken, num2words) to pyproject.toml
+- [X] T002 [P] Create config/transliteration.json with abbreviations, symbols, units
+- [X] T003 [P] Create prompts/transliteration.txt with system prompt for LLM
 
 ---
 
@@ -30,12 +30,12 @@
 
 **Independent Test**: Set LLM_API_URL and LLM_API_KEY in .env, verify config loads correctly
 
-- [ ] T004 Create LLMConfig dataclass in src/utils/config.py
-- [ ] T005 Add LLM environment variable parsing in src/utils/config.py (_parse_llm_config)
-- [ ] T006 Add LLMConfig validation (api_key required if enabled, prompt file exists)
-- [ ] T007 Add LLMConfig to main Config dataclass in src/utils/config.py
-- [ ] T008 [P] Create TextChunk and PreprocessResult dataclasses in src/bot/text_preprocess.py (top of file)
-- [ ] T009 [P] Create LLM exceptions (LLMError, LLMValidationError, LLMTimeoutError) in src/bot/llm_client.py
+- [X] T004 Create LLMConfig dataclass in src/utils/config.py
+- [X] T005 Add LLM environment variable parsing in src/utils/config.py (_parse_llm_config)
+- [X] T006 Add LLMConfig validation (api_key required if enabled, prompt file exists)
+- [X] T007 Add LLMConfig to main Config dataclass in src/utils/config.py
+- [X] T008 [P] Create TextChunk and PreprocessResult dataclasses in src/bot/text_preprocess.py (top of file)
+- [X] T009 [P] Create LLM exceptions (LLMError, LLMValidationError, LLMTimeoutError) in src/bot/llm_client.py
 
 **Checkpoint**: Configuration loads with all LLM parameters from environment
 
@@ -49,10 +49,10 @@
 
 ### Implementation for US1
 
-- [ ] T010 [US1] Add _capitalize_paragraphs function in src/bot/text_preprocess.py
-- [ ] T011 [US1] Add _remove_urls function (regex for http/https links) in src/bot/text_preprocess.py
-- [ ] T012 [US1] Update preprocess_text to call _capitalize_paragraphs and _remove_urls in src/bot/text_preprocess.py
-- [ ] T013 [US1] Add unit tests for capitalization and URL removal in tests/unit/test_text_preprocess.py
+- [X] T010 [US1] Add _capitalize_paragraphs function in src/bot/text_preprocess.py
+- [X] T011 [US1] Add _remove_urls function (regex for http/https links) in src/bot/text_preprocess.py
+- [X] T012 [US1] Update preprocess_text to call _capitalize_paragraphs and _remove_urls in src/bot/text_preprocess.py
+- [X] T013 [US1] Add unit tests for capitalization and URL removal in tests/unit/test_text_preprocess.py
 
 **Checkpoint**: Basic text cleanup works with capitalization and improved punctuation
 
@@ -68,14 +68,14 @@
 
 ### Implementation for US5
 
-- [ ] T014 [P] [US5] Create TranslitConfig loader (load JSON) in src/bot/translit.py
-- [ ] T015 [US5] Implement _transliterate_numbers (using num2words) in src/bot/translit.py
-- [ ] T016 [US5] Implement _transliterate_abbreviations (from config) in src/bot/translit.py
-- [ ] T017 [US5] Implement _transliterate_symbols (from config) in src/bot/translit.py
-- [ ] T018 [US5] Implement _transliterate_latin_fallback (char-by-char) in src/bot/translit.py
-- [ ] T019 [US5] Implement transliterate_programmatic main function in src/bot/translit.py
-- [ ] T020 [US5] Implement fix_invalid_chars function in src/bot/translit.py
-- [ ] T021 [US5] Add unit tests for translit module in tests/unit/test_translit.py
+- [X] T014 [P] [US5] Create TranslitConfig loader (load JSON) in src/bot/translit.py
+- [X] T015 [US5] Implement _transliterate_numbers (using num2words) in src/bot/translit.py
+- [X] T016 [US5] Implement _transliterate_abbreviations (from config) in src/bot/translit.py
+- [X] T017 [US5] Implement _transliterate_symbols (from config) in src/bot/translit.py
+- [X] T018 [US5] Implement _transliterate_latin_fallback (char-by-char) in src/bot/translit.py
+- [X] T019 [US5] Implement transliterate_programmatic main function in src/bot/translit.py
+- [X] T020 [US5] Implement fix_invalid_chars function in src/bot/translit.py
+- [X] T021 [US5] Add unit tests for translit module in tests/unit/test_translit.py
 
 **Checkpoint**: Programmatic transliteration works standalone (numbers, abbreviations, symbols)
 
@@ -91,19 +91,19 @@
 
 ### Implementation for US2 + US3
 
-- [ ] T022 [US2] Implement _load_system_prompt in src/bot/llm_client.py
-- [ ] T023 [US2] Implement _validate_response (regex check) in src/bot/llm_client.py
-- [ ] T024 [US2] Implement LLMClient.__init__ with OpenAI client setup and optional prompt caching in src/bot/llm_client.py
-- [ ] T025 [US2] Implement LLMClient.transliterate with retry logic in src/bot/llm_client.py
-- [ ] T026 [US2] Implement _split_into_chunks (by paragraphs, respecting min_chunk_size) in src/bot/text_preprocess.py
-- [ ] T027 [US2] Implement LLMClient.transliterate_chunks in src/bot/llm_client.py
-- [ ] T028 [US2] Update preprocess_text to integrate LLM flow in src/bot/text_preprocess.py
-- [ ] T029 [US2] Add fallback to programmatic transliteration on LLM error in src/bot/text_preprocess.py
-- [ ] T030 [US2] Add fix_invalid_chars call after LLM response in src/bot/text_preprocess.py
-- [ ] T031 [US2] Implement preprocess_text_with_result for detailed metrics in src/bot/text_preprocess.py
-- [ ] T032 [US2] Add logging for LLM calls and errors in src/bot/llm_client.py
-- [ ] T033 [US2] Add unit tests for llm_client in tests/unit/test_llm_client.py
-- [ ] T034 [US2] Add integration test with mocked LLM in tests/integration/test_llm_integration.py
+- [X] T022 [US2] Implement _load_system_prompt in src/bot/llm_client.py
+- [X] T023 [US2] Implement _validate_response (regex check) in src/bot/llm_client.py
+- [X] T024 [US2] Implement LLMClient.__init__ with OpenAI client setup and optional prompt caching in src/bot/llm_client.py
+- [X] T025 [US2] Implement LLMClient.transliterate with retry logic in src/bot/llm_client.py
+- [X] T026 [US2] Implement _split_into_chunks (by paragraphs, respecting min_chunk_size) in src/bot/text_preprocess.py
+- [X] T027 [US2] Implement LLMClient.transliterate_chunks in src/bot/llm_client.py
+- [X] T028 [US2] Update preprocess_text to integrate LLM flow in src/bot/text_preprocess.py
+- [X] T029 [US2] Add fallback to programmatic transliteration on LLM error in src/bot/text_preprocess.py
+- [X] T030 [US2] Add fix_invalid_chars call after LLM response in src/bot/text_preprocess.py
+- [X] T031 [US2] Implement preprocess_text_with_result for detailed metrics in src/bot/text_preprocess.py
+- [X] T032 [US2] Add logging for LLM calls and errors in src/bot/llm_client.py
+- [X] T033 [US2] Add unit tests for llm_client in tests/unit/test_llm_client.py
+- [X] T034 [US2] Add integration test with mocked LLM in tests/integration/test_llm_integration.py
 
 **Checkpoint**: LLM transliteration works with retry, validation, and fallback
 
@@ -113,12 +113,12 @@
 
 **Purpose**: CLI tool, bot integration, documentation
 
-- [ ] T035 [P] Create CLI tool for testing preprocessing in src/cli/preprocess.py
-- [ ] T036 Update worker.py to pass LLMConfig to preprocess_text in src/bot/worker.py
-- [ ] T037 [P] Update .env.example with LLM configuration variables
-- [ ] T038 Run quickstart.md verification checklist
-- [ ] T039 [P] Update README.md with preprocessing configuration section
-- [ ] T040 Verify SC-003: processing 500 chars completes in <10s (manual test with CLI)
+- [X] T035 [P] Create CLI tool for testing preprocessing in src/cli/preprocess.py
+- [X] T036 Update worker.py to pass LLMConfig to preprocess_text in src/bot/worker.py
+- [X] T037 [P] Update .env.example with LLM configuration variables
+- [X] T038 Run quickstart.md verification checklist
+- [X] T039 [P] Update README.md with preprocessing configuration section
+- [X] T040 Verify SC-003: processing 500 chars completes in <10s (manual test with CLI)
 
 ---
 

@@ -35,8 +35,10 @@ class DummyMessage:
 
 
 @pytest.mark.asyncio
-async def test_bot_sends_voice_on_success(tmp_path):
-    cfg = load_config()
+async def test_bot_sends_voice_on_success(tmp_path, monkeypatch):
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
+    cfg = load_config(env_file)
     queue = InMemoryQueue()
 
     class DummySynth:
@@ -65,8 +67,10 @@ async def test_bot_sends_voice_on_success(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_bot_fallback_when_synth_fails(tmp_path):
-    cfg = load_config()
+async def test_bot_fallback_when_synth_fails(tmp_path, monkeypatch):
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
+    cfg = load_config(env_file)
     queue = InMemoryQueue()
 
     class FailingSynth:

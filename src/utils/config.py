@@ -53,6 +53,22 @@ class VoskConfig:
 
 
 @dataclass(frozen=True)
+class LLMConfig:
+    api_url: str
+    api_key: str
+    model: str
+    temperature: float
+    top_p: float
+    timeout: int
+    max_retries: int
+    system_prompt_path: Optional[Path]
+    cache_system_prompt: bool
+    min_chunk_size: int
+    max_tokens: int
+    enabled: bool
+
+
+@dataclass(frozen=True)
 class Config:
     bot_token: str
     whitelist: Set[int]
@@ -63,6 +79,7 @@ class Config:
     silero: "SileroConfig"
     piper: PiperConfig
     vosk: VoskConfig
+    llm: LLMConfig
 
 
 @dataclass(frozen=True)
@@ -163,6 +180,69 @@ def _validate_vosk_config(cfg: VoskConfig) -> VoskConfig:
         cfg.cache_dir.mkdir(parents=True, exist_ok=True)
     if cfg.metrics_path:
         cfg.metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    return cfg
+
+
+def _parse_llm_config(project_root: Path) -> LLMConfig:
+    enabled = _parse_bool(os.getenv("LLM_ENABLED"), True)
+    api_url = os.getenv("LLM_API_URL", "https://api.openai.com/v1").strip()
+    api_key = os.getenv("LLM_API_KEY", "").strip()
+    model = os.getenv("LLM_MODEL", "gpt-4o-mini").strip()
+    
+    temperature_raw = _parse_float(os.getenv("LLM_TEMPERATURE"))
+    temperature = temperature_raw if temperature_raw is not None else 0.3
+    if temperature < 0.0 or temperature > 2.0:
+        temperature = 0.3
+    
+    top_p_raw = _parse_float(os.getenv("LLM_TOP_P"))
+    top_p = top_p_raw if top_p_raw is not None else 1.0
+    if top_p < 0.0 or top_p > 1.0:
+        top_p = 1.0
+    
+    timeout = _parse_int(os.getenv("LLM_TIMEOUT"), 30, minimum=1) or 30
+    max_retries = _parse_int(os.getenv("LLM_MAX_RETRIES"), 2, minimum=0) or 2
+    
+    system_prompt_path_raw = os.getenv("LLM_SYSTEM_PROMPT_PATH")
+    system_prompt_path = Path(system_prompt_path_raw).resolve() if system_prompt_path_raw else None
+    
+    cache_system_prompt = _parse_bool(os.getenv("LLM_CACHE_SYSTEM_PROMPT"), False)
+    min_chunk_size = _parse_int(os.getenv("LLM_MIN_CHUNK_SIZE"), 500, minimum=1) or 500
+    max_tokens = _parse_int(os.getenv("LLM_MAX_TOKENS"), 4000, minimum=1) or 4000
+    
+    return LLMConfig(
+        api_url=api_url,
+        api_key=api_key,
+        model=model,
+        temperature=temperature,
+        top_p=top_p,
+        timeout=timeout,
+        max_retries=max_retries,
+        system_prompt_path=system_prompt_path,
+        cache_system_prompt=cache_system_prompt,
+        min_chunk_size=min_chunk_size,
+        max_tokens=max_tokens,
+        enabled=enabled,
+    )
+
+
+def _validate_llm_config(cfg: LLMConfig) -> LLMConfig:
+    if cfg.enabled:
+        if not cfg.api_key:
+            raise ValueError("LLM_API_KEY is required when LLM_ENABLED=true")
+        if cfg.system_prompt_path and not cfg.system_prompt_path.exists():
+            raise FileNotFoundError(f"LLM system prompt file not found: {cfg.system_prompt_path}")
+    if cfg.temperature < 0.0 or cfg.temperature > 2.0:
+        raise ValueError(f"LLM temperature must be in range [0.0, 2.0], got {cfg.temperature}")
+    if cfg.top_p < 0.0 or cfg.top_p > 1.0:
+        raise ValueError(f"LLM top_p must be in range [0.0, 1.0], got {cfg.top_p}")
+    if cfg.timeout <= 0:
+        raise ValueError(f"LLM timeout must be > 0, got {cfg.timeout}")
+    if cfg.max_retries < 0:
+        raise ValueError(f"LLM max_retries must be >= 0, got {cfg.max_retries}")
+    if cfg.min_chunk_size <= 0:
+        raise ValueError(f"LLM min_chunk_size must be > 0, got {cfg.min_chunk_size}")
+    if cfg.max_tokens <= 0:
+        raise ValueError(f"LLM max_tokens must be > 0, got {cfg.max_tokens}")
     return cfg
 
 
@@ -296,6 +376,8 @@ def load_config(config_path: Path | None = None) -> Config:
         )
     )
 
+    llm_cfg = _validate_llm_config(_parse_llm_config(project_root))
+
     return Config(
         bot_token=bot_token,
         whitelist=whitelist,
@@ -306,6 +388,7 @@ def load_config(config_path: Path | None = None) -> Config:
         silero=silero_cfg,
         piper=piper_cfg,
         vosk=vosk_cfg,
+        llm=llm_cfg,
     )
 
 
