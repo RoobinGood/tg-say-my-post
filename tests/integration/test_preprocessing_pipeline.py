@@ -1,3 +1,4 @@
+import asyncio
 import os
 import pytest
 
@@ -6,12 +7,12 @@ from src.preprocessing.pipeline import _parse_pipeline_stages
 
 
 def test_preprocess_without_llm():
-    result = preprocess_text("API стоит $100")
+    result = asyncio.run(preprocess_text("API стоит $100"))
     assert "API" not in result or "эй пи ай" in result.lower()
 
 
 def test_preprocess_text_with_result():
-    result = preprocess_text_with_result("тест")
+    result = asyncio.run(preprocess_text_with_result("тест"))
     assert result.text == "Тест."
     assert not result.llm_used
     assert not result.fallback_used
@@ -64,7 +65,7 @@ def test_parse_pipeline_stages_empty():
 
 
 def test_preprocess_stages_order():
-    result = preprocess_text_with_result("API $100")
+    result = asyncio.run(preprocess_text_with_result("API $100"))
     assert "basic" in result.stages_used
     assert "abbreviations" in result.stages_used
     assert "symbols" in result.stages_used

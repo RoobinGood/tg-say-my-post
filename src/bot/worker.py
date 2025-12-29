@@ -34,7 +34,7 @@ class Worker:
             return
         assert incoming is not None
         llm_config = getattr(cfg, "llm", None) if cfg else None
-        incoming_text = preprocess_text(incoming.text, llm_config)
+        incoming_text = await preprocess_text(incoming.text, llm_config)
         if not incoming_text.strip():
             await message.reply_text("озвучивать нечего")
             return

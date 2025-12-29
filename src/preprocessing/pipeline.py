@@ -1,4 +1,3 @@
-import asyncio
 import os
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -146,13 +145,13 @@ async def _preprocess_text_async(
     )
 
 
-def preprocess_text(text: str, llm_config: Optional[LLMConfig] = None) -> str:
+async def preprocess_text(text: str, llm_config: Optional[LLMConfig] = None) -> str:
     if not text:
         return text
 
     if llm_config and llm_config.enabled:
         try:
-            result = asyncio.run(_preprocess_text_async(text, llm_config))
+            result = await _preprocess_text_async(text, llm_config)
             return result.text
         except Exception:
             pass
@@ -161,11 +160,11 @@ def preprocess_text(text: str, llm_config: Optional[LLMConfig] = None) -> str:
     if "llm" in stages:
         stages = [s for s in stages if s != "llm"]
 
-    result = asyncio.run(_preprocess_text_async(text, llm_config, stages))
+    result = await _preprocess_text_async(text, llm_config, stages)
     return result.text
 
 
-def preprocess_text_with_result(text: str, llm_config: Optional[LLMConfig] = None) -> PreprocessResult:
+async def preprocess_text_with_result(text: str, llm_config: Optional[LLMConfig] = None) -> PreprocessResult:
     if not text:
         return PreprocessResult(
             text="",
@@ -177,4 +176,4 @@ def preprocess_text_with_result(text: str, llm_config: Optional[LLMConfig] = Non
             stages_used=[],
         )
 
-    return asyncio.run(_preprocess_text_async(text, llm_config))
+    return await _preprocess_text_async(text, llm_config)

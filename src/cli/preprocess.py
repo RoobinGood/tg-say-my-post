@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 
@@ -29,7 +30,7 @@ def main() -> int:
         llm_config = getattr(config, "llm", None) if config else None
         
         if args.with_result:
-            result = preprocess_text_with_result(text, llm_config)
+            result = asyncio.run(preprocess_text_with_result(text, llm_config))
             print(f"Text: {result.text}")
             print(f"LLM used: {result.llm_used}")
             print(f"Chunks processed: {result.chunks_processed}")
@@ -38,7 +39,7 @@ def main() -> int:
             if result.errors:
                 print(f"Errors: {result.errors}")
         else:
-            result_text = preprocess_text(text, llm_config)
+            result_text = asyncio.run(preprocess_text(text, llm_config))
             print(result_text)
         
         return 0
