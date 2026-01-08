@@ -20,7 +20,7 @@ class PreprocessResult:
     stages_used: list[str]
 
 
-_VALID_STAGES = {"basic", "abbreviations", "symbols", "numbers", "latin_letters", "llm"}
+_VALID_STAGES = {"basic", "abbreviations", "symbols", "numbers", "latin_letters", "paragraph_pauses", "llm"}
 
 
 def _parse_pipeline_stages(env_value: Optional[str] = None) -> list[str]:
@@ -54,6 +54,10 @@ def _stage_basic(text: str) -> str:
     capitalized_lines = basic.capitalize_paragraphs(cleaned_lines)
     punctuated_lines = basic.ensure_paragraph_periods(capitalized_lines)
     return "\n".join(punctuated_lines)
+
+
+def _stage_paragraph_pauses(text: str) -> str:
+    return basic.enhance_paragraph_pauses(text)
 
 
 def _stage_abbreviations(text: str) -> str:
@@ -128,6 +132,7 @@ async def _preprocess_text_async(
                 "symbols": _stage_symbols,
                 "numbers": _stage_numbers,
                 "latin_letters": _stage_latin_letters,
+                "paragraph_pauses": _stage_paragraph_pauses,
             }
 
             if stage in stage_handlers:

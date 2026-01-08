@@ -44,6 +44,18 @@ def _load_latin_letters_dict(dict_path: Optional[Path] = None) -> dict[str, str]
         return json.load(f)
 
 
+def _load_abbreviation_letters_dict(dict_path: Optional[Path] = None) -> dict[str, str]:
+    if dict_path is None:
+        project_root = Path(__file__).resolve().parents[2]
+        dict_path = project_root / "src" / "preprocessing" / "dictionaries" / "abbreviation_letters.json"
+
+    if not dict_path.exists():
+        return {}
+
+    with open(dict_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def transliterate_numbers(text: str) -> str:
     def replace_number(match: re.Match[str]) -> str:
         num_str = match.group(0)
@@ -70,7 +82,7 @@ def transliterate_numbers(text: str) -> str:
 
 def transliterate_abbreviations(text: str, config_path: Optional[Path] = None) -> str:
     config = _load_translit_config(config_path)
-    latin_dict = _load_latin_letters_dict()
+    abbreviation_letters_dict = _load_abbreviation_letters_dict()
 
     result = text
 
@@ -94,8 +106,8 @@ def transliterate_abbreviations(text: str, config_path: Optional[Path] = None) -
         abbr = match.group(0)
         words = []
         for char in abbr:
-            if char.isalpha() and char in latin_dict:
-                transliterated = latin_dict[char]
+            if char.isalpha() and char in abbreviation_letters_dict:
+                transliterated = abbreviation_letters_dict[char]
                 words.append(transliterated)
             elif char.isdigit():
                 words.append(char)

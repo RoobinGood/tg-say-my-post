@@ -45,3 +45,12 @@ def test_remove_urls():
     assert asyncio.run(preprocess_text("текст с https://site.com и еще http://other.org")) == "Текст с и еще."
 
 
+def test_enhance_paragraph_pauses():
+    from src.preprocessing import basic
+    assert basic.enhance_paragraph_pauses("") == ""
+    assert basic.enhance_paragraph_pauses("один абзац") == "один абзац"
+    assert basic.enhance_paragraph_pauses("первый\n\nвторой") == "первый ...  второй"
+    assert basic.enhance_paragraph_pauses("первый\n\nвторой\n\nтретий") == "первый ...  второй ...  третий"
+    assert basic.enhance_paragraph_pauses("первый\n\n\n\nвторой") == "первый ...  второй"
+
+

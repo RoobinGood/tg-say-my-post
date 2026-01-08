@@ -97,3 +97,28 @@ def ensure_paragraph_periods(lines: list[str]) -> list[str]:
     flush_paragraph()
     return result
 
+
+def enhance_paragraph_pauses(text: str) -> str:
+    """Enhance pauses between paragraphs by replacing double newlines with pause markers.
+    
+    Many TTS systems don't properly handle paragraph breaks. This function replaces
+    double newlines with multiple periods and spaces, which many TTS systems
+    interpret as longer pauses than single newlines.
+    """
+    if not text:
+        return text
+    
+    paragraphs = [p.strip() for p in text.split("\n\n")]
+    paragraphs = [p for p in paragraphs if p]
+    
+    if len(paragraphs) <= 1:
+        return text
+    
+    result_parts = []
+    for i, para in enumerate(paragraphs):
+        result_parts.append(para)
+        if i < len(paragraphs) - 1:
+            result_parts.append("... ")
+    
+    return " ".join(result_parts)
+

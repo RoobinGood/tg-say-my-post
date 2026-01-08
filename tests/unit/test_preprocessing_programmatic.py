@@ -25,10 +25,13 @@ def test_transliterate_abbreviations_known():
 
 def test_transliterate_abbreviations_unknown():
     result = transliterate_abbreviations("XYZ")
-    assert "кс" in result.lower() and "й" in result.lower() and "з" in result.lower()
+    assert "икс" in result.lower() and "уай" in result.lower() and "зед" in result.lower()
     
     result = transliterate_abbreviations("ABC123")
-    assert "а" in result.lower() and "б" in result.lower() and "к" in result.lower()
+    assert "эй" in result.lower() and "би" in result.lower() and "си" in result.lower()
+    
+    result = transliterate_abbreviations("TEST")
+    assert "ти" in result.lower() and "и" in result.lower() and "эс" in result.lower()
 
 
 def test_transliterate_symbols():
