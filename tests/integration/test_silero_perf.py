@@ -24,8 +24,10 @@ def test_silero_perf_smoke(monkeypatch, tmp_path):
         self._model_load_ms = 5.0
 
     monkeypatch.setattr(SileroSynthesis, "_ensure_model", fake_ensure)
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
 
-    cfg = load_config()
+    cfg = load_config(env_file)
     silero_cfg = replace(
         cfg.silero,
         output_dir=tmp_path,

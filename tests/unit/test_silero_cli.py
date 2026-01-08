@@ -5,6 +5,7 @@ import pytest
 from src.cli import silero_tts
 from src.synthesis.interface import SynthesisResult
 from src.synthesis.silero import SileroSynthesis
+from src.utils.config import load_config
 
 
 def _clear_env(monkeypatch):
@@ -28,11 +29,15 @@ def _clear_env(monkeypatch):
         "TTS_METRICS_FILE",
     ]:
         monkeypatch.delenv(key, raising=False)
+    monkeypatch.delenv("LLM_ENABLED", raising=False)
+    monkeypatch.setenv("LLM_ENABLED", "false")
 
 
 def test_cli_text_ok(monkeypatch, tmp_path, capsys):
     _clear_env(monkeypatch)
     monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
     out = tmp_path / "out.wav"
 
     def fake_synth(self, text, prefix, out_path):
@@ -41,7 +46,7 @@ def test_cli_text_ok(monkeypatch, tmp_path, capsys):
         return SynthesisResult(path=out_path, duration_seconds=1.0, synth_ms=2.0, model_load_ms=3.0, audio_format="wav")
 
     monkeypatch.setattr(silero_tts.SileroSynthesis, "synth", fake_synth)
-    rc = silero_tts.main(["--text", "hello", "--out", str(out)])
+    rc = silero_tts.main(["--text", "hello", "--out", str(out), "--config", str(env_file)])
     assert rc == 0
     assert out.exists()
 
@@ -49,6 +54,8 @@ def test_cli_text_ok(monkeypatch, tmp_path, capsys):
 def test_cli_text_file_and_length(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
     monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
     out = tmp_path / "out.mp3"
     text_file = tmp_path / "text.txt"
     text_file.write_text("hi", encoding="utf-8")
@@ -58,19 +65,21 @@ def test_cli_text_file_and_length(monkeypatch, tmp_path):
         return SynthesisResult(path=out_path, duration_seconds=1.0, synth_ms=2.0, model_load_ms=None, audio_format="mp3")
 
     monkeypatch.setattr(silero_tts.SileroSynthesis, "synth", fake_synth)
-    rc = silero_tts.main(["--text-file", str(text_file), "--out", str(out), "--format", "mp3"])
+    rc = silero_tts.main(["--text-file", str(text_file), "--out", str(out), "--format", "mp3", "--config", str(env_file)])
     assert rc == 0
     assert out.exists()
 
     long_text = "x" * 2001
     text_file.write_text(long_text, encoding="utf-8")
-    rc_long = silero_tts.main(["--text-file", str(text_file), "--out", str(out)])
+    rc_long = silero_tts.main(["--text-file", str(text_file), "--out", str(out), "--config", str(env_file)])
     assert rc_long == 2
 
 
 def test_silero_synth_saves_and_metrics(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
     monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
     dummy_audio = [0.1] * 16000
 
     class DummyModel:
@@ -80,7 +89,7 @@ def test_silero_synth_saves_and_metrics(monkeypatch, tmp_path):
         def apply_tts(self, text: str, speaker: str, sample_rate: int):
             return dummy_audio
 
-    cfg = silero_tts.load_config()
+    cfg = load_config(env_file)
     synth = SileroSynthesis(cfg.silero)
     synth._model = DummyModel()  # bypass real load
     out = tmp_path / "out.wav"
@@ -102,10 +111,12 @@ def test_cli_missing_config_file(monkeypatch, tmp_path):
 def test_cli_unwritable_output_dir(monkeypatch, tmp_path):
     _clear_env(monkeypatch)
     monkeypatch.setenv("TTS_MODEL", "v5_ru")
+    env_file = tmp_path / ".env"
+    env_file.write_text("LLM_ENABLED=false\nTTS_MODEL=v5_ru\n", encoding="utf-8")
     blocker = tmp_path / "file"
     blocker.write_text("content", encoding="utf-8")
     out = blocker / "nested" / "out.wav"
-    rc = silero_tts.main(["--text", "hi", "--out", str(out)])
+    rc = silero_tts.main(["--text", "hi", "--out", str(out), "--config", str(env_file)])
     assert rc == 4
     assert not out.exists()
 

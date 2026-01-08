@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # tg-say-my-post Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2025-12-10
@@ -10,6 +14,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-10
 - Python 3.11 (uv-managed) + vosk-tts (pip), существующие aiogram/pyrogram для бота, pytest для тестов (005-vosk-tts)
 - Локальные файлы моделей в кеше (скачиваются автоматически библиотекой vosk-tts) (005-vosk-tts)
 - Python 3.11 (uv-managed) + python-telegram-bot, pydub (для mp3 handling), pytest (001-telegram-tts-bot)
+- Python 3.11+ + openai, tiktoken, python-telegram-bot, pydub (006-text-preprocessing-llm)
+- N/A (stateless processing) (006-text-preprocessing-llm)
 
 ## Project Structure
 
@@ -27,9 +33,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11 (uv-managed): Follow standard conventions
 
 ## Recent Changes
+- 006-text-preprocessing-llm: Added Python 3.11+ + openai, tiktoken, python-telegram-bot, pydub
 - 005-vosk-tts: Added Python 3.11 (uv-managed) + vosk-tts (pip), существующие aiogram/pyrogram для бота, pytest для тестов
 - 004-piper-tts: Added Python 3.11 (uv-managed) + aiogram/pyrogram stack for bot, existing Silero TTS client, планируемый Piper TTS клиент + CLI обёртка, logging/metrics (стандартный logging + структурированные записи), pytest для тестов
-- 003-melotts-tts: Added Python 3.11 + uv (runtime/packaging), Telegram bot library (aiogram/pyrogram already in repo), existing Silero TTS client; добавить MeloTTS клиент.
 
 
 <!-- MANUAL ADDITIONS START -->
