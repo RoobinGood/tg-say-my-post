@@ -58,8 +58,14 @@ class VoskSynthesis(SynthesisProvider):
                 data = json.load(f)
                 supported_symbols = set(data.get("symbols", {}).keys())
 
+        dash_like = {"—", "–", "−", "‑", "‒", "―"}
+
         result = []
         for char in text:
+            if char in dash_like:
+                result.append("-")
+                continue
+
             if char.isalpha() or char.isdigit() or char.isspace():
                 result.append(char)
             elif char in supported_symbols:
@@ -68,7 +74,7 @@ class VoskSynthesis(SynthesisProvider):
                 result.append('"')
             elif char in {"„", "‚", "‹", "›"}:
                 result.append("'")
-            elif char in {".", ",", "!", "?", ";", ":", "-", "—", "–", "(", ")", "[", "]", '"', "'", "+"}:
+            elif char in {".", ",", "!", "?", ";", ":", "-", "(", ")", "[", "]", '"', "'", "+"}:
                 result.append(char)
             else:
                 pass
