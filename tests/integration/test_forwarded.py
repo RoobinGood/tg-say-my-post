@@ -85,8 +85,8 @@ async def test_forwarded_prefixes(tmp_path: Path):
     await worker.handle_message(update_chan, context_chan)
 
     assert synth.prefixes == [
-        "сообщение от пользователя Alice",
-        "пост из канала News",
+        "Сообщение от пользователя Алике.",
+        "Пост из канала Невс.",
     ]
     assert bot.voice_calls == [1, 2]
     assert queue.is_empty(msg_user.chat_id)

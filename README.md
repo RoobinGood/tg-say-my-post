@@ -9,6 +9,24 @@ Stub implementation for Telegram text-to-speech bot with queueing and synthesis 
 uv run python -m src.cli.run_bot
 ```
 
+### Configuration
+
+#### Bot timeouts
+
+- `BOT_READ_TIMEOUT` (по умолчанию: `120`) — таймаут чтения ответа от Telegram API в секундах
+- `BOT_WRITE_TIMEOUT` (по умолчанию: `300`) — таймаут записи данных в Telegram API в секундах (важно для больших аудиофайлов, рекомендуется 300+ для файлов >5 МБ)
+- `BOT_CONNECT_TIMEOUT` (по умолчанию: `30`) — таймаут установки соединения с Telegram API в секундах
+- `BOT_POOL_TIMEOUT` (по умолчанию: `30`) — таймаут ожидания свободного соединения из пула в секундах (частая причина `TimedOut` при отправке voice/файлов)
+
+Пример:
+
+```sh
+BOT_READ_TIMEOUT=300
+BOT_WRITE_TIMEOUT=300
+BOT_CONNECT_TIMEOUT=300
+BOT_POOL_TIMEOUT=300
+```
+
 ## text preprocessing
 
 Text preprocessing includes:

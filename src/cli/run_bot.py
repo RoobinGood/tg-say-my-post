@@ -50,7 +50,15 @@ def main() -> int:
 
     worker = Worker(queue=queue, synth=synth)
 
-    app = Application.builder().token(config.bot_token).build()
+    app = (
+        Application.builder()
+        .token(config.bot_token)
+        .read_timeout(config.bot_read_timeout)
+        .write_timeout(config.bot_write_timeout)
+        .connect_timeout(config.bot_connect_timeout)
+        .pool_timeout(config.bot_pool_timeout)
+        .build()
+    )
     app.bot_data["config"] = config
     app.bot_data["worker"] = worker
 

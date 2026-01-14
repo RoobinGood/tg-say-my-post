@@ -14,11 +14,12 @@ class DummyBot:
         self.voice_calls = []
         self.text_calls = []
 
-    async def send_voice(self, chat_id, voice, caption=None, reply_to_message_id=None):
+    async def send_voice(self, chat_id, voice, caption=None, reply_to_message_id=None, **kwargs):
         self.voice_calls.append(reply_to_message_id)
-        data = voice.read()
+        data = getattr(voice, "input_file_content", None)
+        if data is None:
+            data = voice.read()
         assert data
-        voice.close()
 
     async def send_message(self, chat_id, text):
         self.text_calls.append(text)

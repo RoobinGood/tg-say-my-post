@@ -80,6 +80,10 @@ class Config:
     piper: PiperConfig
     vosk: VoskConfig
     llm: LLMConfig
+    bot_read_timeout: int
+    bot_write_timeout: int
+    bot_connect_timeout: int
+    bot_pool_timeout: int
 
 
 @dataclass(frozen=True)
@@ -378,6 +382,11 @@ def load_config(config_path: Path | None = None) -> Config:
 
     llm_cfg = _validate_llm_config(_parse_llm_config(project_root))
 
+    bot_read_timeout = _parse_int(os.getenv("BOT_READ_TIMEOUT"), 120, minimum=1) or 120
+    bot_write_timeout = _parse_int(os.getenv("BOT_WRITE_TIMEOUT"), 300, minimum=1) or 300
+    bot_connect_timeout = _parse_int(os.getenv("BOT_CONNECT_TIMEOUT"), 30, minimum=1) or 30
+    bot_pool_timeout = _parse_int(os.getenv("BOT_POOL_TIMEOUT"), 30, minimum=1) or 30
+
     return Config(
         bot_token=bot_token,
         whitelist=whitelist,
@@ -389,6 +398,10 @@ def load_config(config_path: Path | None = None) -> Config:
         piper=piper_cfg,
         vosk=vosk_cfg,
         llm=llm_cfg,
+        bot_read_timeout=bot_read_timeout,
+        bot_write_timeout=bot_write_timeout,
+        bot_connect_timeout=bot_connect_timeout,
+        bot_pool_timeout=bot_pool_timeout,
     )
 
 
