@@ -48,6 +48,3 @@ SaluteSpeech settings (used when `TTS_PROVIDER=salute`):
 Build and run:
 - `docker build -t tg-say-my-post .`
 - `docker run --env-file .env tg-say-my-post`
-# Telegram TTS Bot
-
-Stub implementation for Telegram text-to-speech bot with queueing and synthesis placeholder.
