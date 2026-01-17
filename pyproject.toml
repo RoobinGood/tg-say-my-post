@@ -1,6 +1,6 @@
 [project]
 name = "tg-say-my-post"
-version = "0.1.0"
+version = "1.0.0"
 description = "Telegram TTS bot with synthesis stub"
 readme = "README.md"
 requires-python = ">=3.11"
