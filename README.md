@@ -1,3 +1,47 @@
+# tg-say-my-post
+
+Telegram bot that converts incoming messages to voice replies.
+
+## Features
+- Supports plain text messages
+- Supports forwarded posts from channels with a prefixed line
+- Supports forwarded messages from users with a prefixed line
+- Access control by allowed user IDs
+- Pluggable TTS providers
+
+## Setup
+1. Copy `.env.example` to `.env` and fill in your values.
+2. Install dependencies:
+   - `npm ci`
+
+## Run locally
+- Development: `npm run dev`
+- Production build: `npm run build`
+- Start: `npm start`
+
+## Configuration
+All settings are provided via environment variables:
+- `BOT_TOKEN`
+- `ALLOWED_USER_IDS`
+- `PREPROCESSING_ENABLED` (default: `false`)
+- `TTS_PROVIDER` (`mock` or `salute`)
+
+SaluteSpeech settings (used when `TTS_PROVIDER=salute`):
+- `SALUTE_AUTH_KEY`
+- `SALUTE_SCOPE` (default: `SALUTE_SPEECH_PERS`)
+- `SALUTE_TOKEN_URL` (default: `https://ngw.devices.sberbank.ru:9443/api/v2/oauth`)
+- `SALUTE_SYNTH_URL` (default: `https://smartspeech.sber.ru/rest/v1/text:synthesize`)
+- `SALUTE_VOICE` (default: `Nec_24000`)
+- `SALUTE_FORMAT` (default: `wav16`)
+- `SALUTE_USE_SSML` (default: `false`)
+- `SALUTE_TMP_DIR` (default: `tmp`)
+- `SALUTE_TIMEOUT_MS` (default: `30000`)
+- `SALUTE_TOKEN_REFRESH_MARGIN_MS` (default: `60000`)
+
+## Docker
+Build and run:
+- `docker build -t tg-say-my-post .`
+- `docker run --env-file .env tg-say-my-post`
 # Telegram TTS Bot
 
 Stub implementation for Telegram text-to-speech bot with queueing and synthesis placeholder.
@@ -27,54 +71,13 @@ BOT_CONNECT_TIMEOUT=300
 BOT_POOL_TIMEOUT=300
 ```
 
-## text preprocessing
+## Text preprocessing
 
-Text preprocessing includes:
-- Basic cleanup: emoji removal, URL removal, capitalization, punctuation
-- LLM transliteration: Latin → Cyrillic, numbers → words, stress marks (if LLM enabled)
-- Programmatic fallback: num2words + dictionary-based transliteration (if LLM disabled)
+Optional programmatic preprocessing (enable via config):
+- Capitalizes the first letter if it is lowercase
+- Adds a trailing dot if the line ends with a letter/digit and has no dot
+- Replaces a leading emoji with a dash, then removes all emoji
 
 ### Configuration
-
-#### Pipeline stages
-
-`PREPROCESSING_STAGES` — список стадий обработки через запятую (по умолчанию: `basic,abbreviations,symbols,numbers,latin_letters`).
-
-Доступные стадии:
-- `basic` — удаляет URL и эмодзи, капитализирует начало абзацев и добавляет точки в конце абзацев
-- `abbreviations` — заменяет известные аббревиатуры из словаря (например, API → "эй пи ай") и транслитерирует неизвестные по буквам
-- `symbols` — заменяет специальные символы на слова по словарю (например, % → "процент", $ → "доллар")
-- `numbers` — преобразует числа, дроби и десятичные дроби в словесное произношение (например, 2.5 → "две целых пять десятых")
-- `latin_letters` — транслитерирует латинские буквы в кириллицу по словарю (например, a → а, b → б)
-- `paragraph_pauses` — улучшает паузы между абзацами, заменяя двойные переносы строк на маркеры паузы (`... `), которые многие TTS-системы интерпретируют как более длинные паузы
-- `llm` — использует LLM для транслитерации латиницы, чисел и символов, а также для расстановки ударений в омографах (требует `LLM_ENABLED=true`)
-
-Пример: `PREPROCESSING_STAGES=basic,numbers,latin_letters,llm`
-
-#### LLM settings
-
-- `LLM_ENABLED` (по умолчанию: `true`) — включить/выключить LLM-транслитерацию
-- `LLM_API_URL` (по умолчанию: `https://api.openai.com/v1`) — базовый URL API
-- `LLM_API_KEY` (обязательно, если `LLM_ENABLED=true`) — API ключ
-- `LLM_MODEL` (по умолчанию: `gpt-4o-mini`) — название модели
-- `LLM_TEMPERATURE` (по умолчанию: `0.3`, диапазон: `0.0-2.0`) — температура генерации
-- `LLM_TOP_P` (по умолчанию: `1.0`, диапазон: `0.0-1.0`) — top-p sampling
-- `LLM_TIMEOUT` (по умолчанию: `30`) — таймаут запроса в секундах
-- `LLM_MAX_RETRIES` (по умолчанию: `2`) — количество повторных попыток
-- `LLM_SYSTEM_PROMPT_PATH` — путь к файлу с системным промптом (опционально)
-- `LLM_CACHE_SYSTEM_PROMPT` (по умолчанию: `false`) — кешировать системный промпт
-- `LLM_MIN_CHUNK_SIZE` (по умолчанию: `500`) — минимальный размер чанка в символах
-- `LLM_MAX_TOKENS` (по умолчанию: `4000`) — максимальное количество токенов на запрос
-
-Если `LLM_ENABLED=false` или LLM недоступен, используется программная транслитерация (num2words + словарь).
-
-### Testing preprocessing
-
-```sh
-# Basic usage
-echo "API версии 2.5" | uv run python -m src.cli.preprocess
-
-# With detailed metrics
-echo "API версии 2.5" | uv run python -m src.cli.preprocess --with-result
-```
+- `PREPROCESSING_ENABLED` (default: `false`)
 

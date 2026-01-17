@@ -1,22 +1,24 @@
-FROM python:3.11-slim
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+COPY package.json npm-shrinkwrap.json ./
+RUN npm ci
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+RUN npm prune --omit=dev
 
-COPY pyproject.toml uv.lock README.md ./
-RUN uv sync --frozen --no-dev
+FROM node:20-alpine
 
-COPY src/ ./src/
-RUN mkdir -p prompts config
+WORKDIR /app
+RUN apk add --no-cache ffmpeg
 
-ENV PYTHONPATH=/app
-ENV PATH="/app/.venv/bin:$PATH"
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 
-CMD ["python", "-m", "src.cli.run_bot"]
+ENV NODE_ENV=production
+
+CMD ["node", "dist/index.js"]
