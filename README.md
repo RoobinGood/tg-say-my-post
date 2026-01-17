@@ -26,6 +26,12 @@ All settings are provided via environment variables:
 - `PREPROCESSING_ENABLED` (default: `false`)
 - `TTS_PROVIDER` (`mock` or `salute`)
 
+## Text preprocessing
+Enabled with `PREPROCESSING_ENABLED=true`. It prepares text for speech synthesis:
+- leading emoji is replaced with a dash, other emojis are removed
+- the first lowercase letter at the start is uppercased
+- if the line ends with a letter or digit, a period is appended
+
 SaluteSpeech settings (used when `TTS_PROVIDER=salute`):
 - `SALUTE_AUTH_KEY`
 - `SALUTE_SCOPE` (default: `SALUTE_SPEECH_PERS`)
@@ -45,39 +51,3 @@ Build and run:
 # Telegram TTS Bot
 
 Stub implementation for Telegram text-to-speech bot with queueing and synthesis placeholder.
-
-
-## bot
-
-```sh
-uv run python -m src.cli.run_bot
-```
-
-### Configuration
-
-#### Bot timeouts
-
-- `BOT_READ_TIMEOUT` (по умолчанию: `120`) — таймаут чтения ответа от Telegram API в секундах
-- `BOT_WRITE_TIMEOUT` (по умолчанию: `300`) — таймаут записи данных в Telegram API в секундах (важно для больших аудиофайлов, рекомендуется 300+ для файлов >5 МБ)
-- `BOT_CONNECT_TIMEOUT` (по умолчанию: `30`) — таймаут установки соединения с Telegram API в секундах
-- `BOT_POOL_TIMEOUT` (по умолчанию: `30`) — таймаут ожидания свободного соединения из пула в секундах (частая причина `TimedOut` при отправке voice/файлов)
-
-Пример:
-
-```sh
-BOT_READ_TIMEOUT=300
-BOT_WRITE_TIMEOUT=300
-BOT_CONNECT_TIMEOUT=300
-BOT_POOL_TIMEOUT=300
-```
-
-## Text preprocessing
-
-Optional programmatic preprocessing (enable via config):
-- Capitalizes the first letter if it is lowercase
-- Adds a trailing dot if the line ends with a letter/digit and has no dot
-- Replaces a leading emoji with a dash, then removes all emoji
-
-### Configuration
-- `PREPROCESSING_ENABLED` (default: `false`)
-
