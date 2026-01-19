@@ -8,16 +8,16 @@ test("preprocessText: удаляет эмодзи из текста", () => {
   assert.strictEqual(result, "Привет  как дела. ");
 });
 
-test("preprocessText: заменяет ведущий эмодзи на дефис", () => {
+test("preprocessText: заменяет ведущий эмодзи на абзац", () => {
   const input = "😊 Привет как дела";
   const result = preprocessText(input);
-  assert.strictEqual(result, "- Привет как дела.");
+  assert.strictEqual(result, "\n\n Привет как дела.");
 });
 
-test("preprocessText: заменяет ведущий эмодзи с пробелами на дефис", () => {
+test("preprocessText: заменяет ведущий эмодзи с пробелами на абзац", () => {
   const input = "  😊 Привет как дела";
   const result = preprocessText(input);
-  assert.strictEqual(result, "  - Привет как дела.");
+  assert.strictEqual(result, "  \n\n Привет как дела.");
 });
 
 test("preprocessText: капитализирует первую букву, если она строчная", () => {
@@ -83,13 +83,13 @@ test("preprocessText: обрабатывает строку только из п
 test("preprocessText: обрабатывает строку только из эмодзи", () => {
   const input = "😊🎉👍";
   const result = preprocessText(input);
-  assert.strictEqual(result, "-");
+  assert.strictEqual(result, "\n\n");
 });
 
 test("preprocessText: комплексный тест - все преобразования вместе", () => {
   const input = "  😊 привет как дела 🎉";
   const result = preprocessText(input);
-  assert.strictEqual(result, "  - привет как дела. ");
+  assert.strictEqual(result, "  \n\n Привет как дела. ");
 });
 
 test("preprocessText: удаляет эмодзи модификаторы и соединители", () => {

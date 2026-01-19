@@ -6,7 +6,7 @@ export function preprocessText(input: string): string {
   let output = input;
 
   if (leadingEmojiRegex.test(output)) {
-    output = output.replace(leadingEmojiRegex, "$1-");
+    output = output.replace(leadingEmojiRegex, "$1\n\n");
   }
 
   output = output.replace(emojiRegex, "").replace(emojiExtrasRegex, "");
