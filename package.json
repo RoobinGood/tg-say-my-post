@@ -6,7 +6,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "test": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.json --noEmit && npm run test:unit",
+    "test:unit": "find src -name '*.test.ts' -exec ts-node --transpile-only {} \\;",
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "author": "",

@@ -2,3 +2,4 @@ node_modules
 .env
 .env.v1
 tmp
+dist

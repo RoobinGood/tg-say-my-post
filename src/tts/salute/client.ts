@@ -1,11 +1,16 @@
 import axios from "axios";
 import { randomUUID } from "crypto";
+import { execFile } from "child_process";
+import { promisify } from "util";
 import { promises as fs } from "fs";
 import https from "https";
 import path from "path";
-import type { SaluteConfig } from "../config/env";
-import type { Logger } from "../logging/logger";
-import type { TtsClient } from "./types";
+import type { SaluteConfig } from "../../config/env";
+import type { Logger } from "../../logging/logger";
+import type { TtsClient } from "../types";
+import { splitTextForSalute } from "./chunking";
+
+const execFileAsync = promisify(execFile);
 
 interface SaluteTokenResponse {
   access_token?: string;
@@ -35,10 +40,49 @@ export class SaluteTtsClient implements TtsClient {
 
     const fileName = `${chatId}_${messageId}.${getFileExtFromFormat(this.config.format)}`;
     const filePath = path.join(tmpDir, fileName);
-    const response = await this.requestSynthesis(token, text, requestId);
-    const audioData = new Uint8Array(response.data);
-    await fs.writeFile(filePath, audioData);
-    return filePath;
+
+    const chunks = splitTextForSalute(text);
+    this.logger.info(
+      `SaluteSpeech text split into ${chunks.length} chunks (total length: ${text.length}, chunk lengths: ${chunks.map((c) => c.length).join(", ")})`,
+      {
+        requestId,
+        service: "salute",
+      },
+    );
+
+    if (chunks.length === 1) {
+      const response = await this.requestSynthesis(token, chunks[0], requestId);
+      const audioData = new Uint8Array(response.data);
+      await fs.writeFile(filePath, audioData);
+      return filePath;
+    }
+
+    const chunkFiles: string[] = [];
+    try {
+      for (let i = 0; i < chunks.length; i++) {
+        const chunkFile = path.join(tmpDir, `${chatId}_${messageId}_chunk_${i}.${getFileExtFromFormat(this.config.format)}`);
+        chunkFiles.push(chunkFile);
+
+        this.logger.info(
+          `SaluteSpeech synthesizing chunk ${i + 1}/${chunks.length} (length: ${chunks[i].length})`,
+          {
+            requestId,
+            service: "salute",
+          },
+        );
+
+        const response = await this.requestSynthesis(token, chunks[i], requestId);
+        const audioData = new Uint8Array(response.data);
+        await fs.writeFile(chunkFile, audioData);
+      }
+
+      await this.mergeAudioFiles(chunkFiles, filePath, requestId);
+      return filePath;
+    } finally {
+      for (const chunkFile of chunkFiles) {
+        await fs.unlink(chunkFile).catch(() => undefined);
+      }
+    }
   }
 
   private async ensureToken(requestId: string): Promise<string> {
@@ -105,6 +149,44 @@ export class SaluteTtsClient implements TtsClient {
         { requestId, service: "salute", status: "error" },
       );
       throw error;
+    }
+  }
+
+  private async mergeAudioFiles(
+    inputFiles: string[],
+    outputFile: string,
+    requestId: string,
+  ): Promise<void> {
+    const concatListFile = `${outputFile}.concat.txt`;
+    const fileListContent = inputFiles.map((file) => `file '${file}'`).join("\n");
+
+    try {
+      await fs.writeFile(concatListFile, fileListContent, "utf-8");
+
+      this.logger.info(
+        `SaluteSpeech merging ${inputFiles.length} audio chunks with ffmpeg to ${outputFile}`,
+        { requestId, service: "salute" },
+      );
+
+      await execFileAsync("ffmpeg", [
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        concatListFile,
+        "-c",
+        "copy",
+        outputFile,
+      ]);
+    } catch (error) {
+      this.logger.error(
+        `SaluteSpeech ffmpeg merge failed: ${error instanceof Error ? error.message : String(error)}`,
+        { requestId, service: "salute", status: "error" },
+      );
+      throw error;
+    } finally {
+      await fs.unlink(concatListFile).catch(() => undefined);
     }
   }
 
