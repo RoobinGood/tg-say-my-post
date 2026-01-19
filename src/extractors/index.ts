@@ -35,7 +35,7 @@ type MessageWithForward = Message & {
 
 export function extractTextFromMessage(message: Message): string {
   const withForward = message as MessageWithForward;
-  const text = message.text;
+  const text = message.text ?? message.caption;
 
   if (!text || text.trim().length === 0) {
     throw new UnsupportedMessageError(
